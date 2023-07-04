@@ -1,3 +1,3 @@
-export class user{
-    constructor( public uid: string, public name: string, public email: string){}
+export class User {
+  constructor(public uid: string, public name: string, public email: string) {}
 }

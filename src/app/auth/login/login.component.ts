@@ -39,7 +39,7 @@ export class LoginComponent {
 
     const {email, password} = this.formGroupLogin.value;
     this.authService.loginUser(email, password)
-    .then( credentials =>{
+    .then( (__) =>{
       Swal.close();
       this.router.navigate(['/']);
     })

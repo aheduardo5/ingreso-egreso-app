@@ -6,33 +6,45 @@ import {
   signInWithEmailAndPassword,
 } from '@angular/fire/auth';
 import { Observable, map } from 'rxjs';
-import { user } from '../models/user.model';
-import { Firestore, collection, addDoc } from '@angular/fire/firestore';
+import { User } from '../models/user.model';
+import {
+  Firestore,
+  collection,
+  addDoc,
+} from '@angular/fire/firestore';
 import { Router } from '@angular/router';
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-
-  constructor(public auth: Auth,
-              public firestore: Firestore,
-              public router:Router) {}
+  constructor(
+    public auth: Auth,
+    private firestore: Firestore,
+    public router: Router
+  ) {}
 
   initAuthListener() {
     this.auth.beforeAuthStateChanged((fUser) => {
-      console.log('initAuthListener: ',fUser);
-      console.log('initAuthListener: ',fUser?.email);
-      console.log('initAuthListener: ',fUser?.uid);
+      // console.log('initAuthListener: ',fUser);
+      // console.log('initAuthListener: ',fUser?.email);
+      // console.log('initAuthListener: ',fUser?.uid);
     });
   }
 
-  createUser(name: string, email: string, password: string):Promise<any> {
+  createUser(name: string, email: string, password: string): Promise<any> {
     return createUserWithEmailAndPassword(this.auth, email, password)
-    .then( ({user:userInfo}) =>{
-      // const newUser = new user(userInfo.uid, name, email );
-      // const userRef = collection(this.firestore, 'user')
-      // return addDoc( userRef, {...newUser});
-    })
+      .then(({ user }) => {
+        const newUser: User = {
+          uid: user.uid,
+          name: name,
+          email: email,
+        };
+        const userRef = collection(this.firestore, 'users');
+        return addDoc(userRef, newUser);
+      })
+      .catch((error) => {
+        console.error('Error creating user:', error);
+      });
   }
 
   loginUser(email: string, password: string) {
@@ -43,7 +55,7 @@ export class AuthService {
     return this.auth.signOut();
   }
 
-  isAuth(){
+  isAuth() {
     return new Observable((subscriber) => {
       const unsubscribe = this.auth.onAuthStateChanged(subscriber);
       return { unsubscribe };
